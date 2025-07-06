@@ -1,97 +1,105 @@
+import { Form, Row, Col, Button } from "react-bootstrap";
 import { useParams } from "react-router-dom";
 
 export default function AssignmentEditor() {
-    const { aid } = useParams();  // get the assignment ID from the URL parameters
-    return (
-      <div id="wd-assignments-editor">
-        <label htmlFor="wd-name"><h3>Assignment Name</h3></label>
-        <input id="wd-name" value={aid} /><br /><br />
+  const { aid } = useParams();  // get the assignment ID from the URL parameters
+  return (
+    <div id="wd-edit-assignment" className="p-3">
+      <Form>
+        {/* Assignment Name */}
+        <Form.Group className="mb-3" controlId="assignmentName">
+          <Form.Label>Assignment Name</Form.Label>
+          <Form.Control type="text" value={aid} />
+        </Form.Group>
 
-        <textarea
-        id="wd-description"
-        defaultValue={`The assignment is available online Submit a link to the landing page of your Web application running on Netlify. The landing page should include the following: Your full name and section Links to each of the lab assignments Link to the Kanbaz application Links to all relevant source code repositories The Kanbaz application should include a link to navigate back to the landing page.`}
-        rows={6}
-        cols={50}/>
-        <br /><br />
+        {/* Description */}
+        <Form.Group className="mb-3" controlId="assignmentDescription">
+          <Form.Label>Description</Form.Label>
+          <div className="border p-2 rounded" style={{ minHeight: "150px", background: "white" }}>
+            The assignment is <span className="text-danger">available online</span><br />
+            Submit a link to the landing page of your Web application running on Netlify.<br /><br />
+            The landing page should include the following:<br />
+            - Your full name and section<br />
+            - Links to each of the lab assignments<br />
+            - Link to the Kanbas application<br />
+            - Links to all relevant source code repositories<br /><br />
+            The Kanbas application should include a link to navigate back to the landing page.
+          </div>
+        </Form.Group>
 
-        <table style={{ borderSpacing: "10px" }}>
-          <tbody>
-            <tr>
-            <td align="right"><label htmlFor="wd-points">Points</label></td>
-            <td><input id="wd-points" type="number" defaultValue={100} /></td>
-            </tr>
+        {/* Points */}
+        <Form.Group className="mb-3" controlId="assignmentPoints">
+          <Form.Label>Points</Form.Label>
+          <Form.Control type="number" value="100" />
+        </Form.Group>
 
-            <tr>
-            <td align="right"><label htmlFor="wd-group">Assignment Group</label></td>
-            <td>
-                <select id="wd-group">
-                <option>ASSIGNMENTS</option>
-                <option>QUIZZES</option>
-                <option>EXAMS</option>
-                <option>PROJECT</option>
-                </select>
-            </td>
-            </tr>
+        {/* Assignment Group */}
+        <Form.Group className="mb-3" controlId="assignmentGroup">
+          <Form.Label>Assignment Group</Form.Label>
+          <Form.Select>
+            <option>ASSIGNMENTS</option>
+            <option>QUIZZES</option>
+            <option>EXAMS</option>
+            <option>PROJECT</option>
+          </Form.Select>
+        </Form.Group>
 
-            <tr>
-            <td align="right"><label htmlFor="wd-display-grade-as">Display Grade As</label></td>
-            <td>
-                <select id="wd-display-grade-as">
-                <option>Points</option>
-                <option>Percentage</option>
-                </select>
-            </td>
-            </tr>
+        {/* Display Grade as */}
+        <Form.Group className="mb-3" controlId="displayGradeAs">
+          <Form.Label>Display Grade as</Form.Label>
+          <Form.Select>
+            <option>Percentage</option>
+            <option>Points</option>
+          </Form.Select>
+        </Form.Group>
 
-            <tr>
-            <td align="right"><label htmlFor="wd-submission-type">Submission Type</label></td>
-            <td>
-                <select id="wd-submission-type">
-                <option>Online</option>
-                <option>On Paper</option>
-                <option>No Submission</option>
-                </select>
-            </td>
-            </tr>
+        {/* Submission Type */}
+        <Form.Group className="mb-3" controlId="submissionType">
+          <Form.Label>Submission Type</Form.Label>
+          <Form.Select>
+            <option>Online</option>
+            <option>On Paper</option>
+            <option>No Submission</option>
+          </Form.Select>
 
-            <tr>
-            <td align="right" valign="top">Online Entry Options</td>
-            <td>
-                <label><input id="wd-text-entry" type="checkbox" /> Text Entry</label><br />
-                <label><input id="wd-website-url" type="checkbox" /> Website URL</label><br />
-                <label><input id="wd-media-recordings" type="checkbox" /> Media Recordings</label><br />
-                <label><input id="wd-student-annotation" type="checkbox" /> Student Annotation</label><br />
-                <label><input id="wd-file-upload" type="checkbox" /> File Upload</label>
-            </td>
-            </tr>
+          <div className="mt-2">
+            <Form.Check label="Text Entry" />
+            <Form.Check label="Website URL" defaultChecked />
+            <Form.Check label="Media Recordings" />
+            <Form.Check label="Student Annotation" />
+            <Form.Check label="File Uploads" />
+          </div>
+        </Form.Group>
 
-            <tr>
-            <td align="right"><label htmlFor="wd-assign-to">Assign to</label></td>
-            <td><input id="wd-assign-to" defaultValue="Everyone" /></td>
-            </tr>
+        {/* Assign */}
+        <Form.Group className="mb-3" controlId="assignTo">
+          <Form.Label>Assign to</Form.Label>
+          <Form.Control type="text" value="Everyone" />
+        </Form.Group>
 
-            <tr>
-            <td align="right"><label htmlFor="wd-due-date">Due</label></td>
-            <td><input id="wd-due-date" type="date" defaultValue="2025-07-08" /></td>
-            </tr>
+        <Row>
+          <Col>
+            <Form.Group className="mb-3" controlId="dueDate">
+              <Form.Label>Due</Form.Label>
+              <Form.Control type="datetime-local" defaultValue="2024-05-13T23:59" />
+            </Form.Group>
+          </Col>
+          <Col>
+            <Form.Label>Available from</Form.Label>
+            <Form.Control type="datetime-local" defaultValue="2024-05-06T00:00" />
+          </Col>
+          <Col>
+            <Form.Label>Until</Form.Label>
+            <Form.Control type="datetime-local" />
+          </Col>
+        </Row>
 
-            <tr>
-            <td align="right"><label htmlFor="wd-available-from">Available from</label></td>
-            <td><input id="wd-available-from" type="date" defaultValue="2025-07-01" /></td>
-            </tr>
-
-            <tr>
-            <td align="right"><label htmlFor="wd-available-until">Until</label></td>
-            <td><input id="wd-available-until" type="date" defaultValue="2025-07-01" /></td>
-            </tr>
-          </tbody>
-        </table>
-        <br />
-    
-        <div style={{ textAlign: "right", marginTop: "10px" }}>
-        <button>Cancel</button>{" "}
-        <button>Save</button>
+        {/* Buttons */}
+        <div className="d-flex justify-content-end">
+          <Button variant="secondary" className="me-2">Cancel</Button>
+          <Button variant="danger">Save</Button>
         </div>
-      </div>
-  );}
-
+      </Form>
+    </div>
+  );
+}

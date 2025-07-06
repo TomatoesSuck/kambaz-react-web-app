@@ -3,6 +3,7 @@ import { FaEllipsisV } from "react-icons/fa";
 import GreenCheckmark from "../Modules/GreenCheckmark";
 import { BsGripVertical } from "react-icons/bs";
 import { FaRegEdit } from "react-icons/fa";
+import { Link } from "react-router-dom";
 
 export default function Assignments() {
   return (
@@ -48,13 +49,15 @@ export default function Assignments() {
         <ListGroup.Item 
           className="rounded-0" 
           style={{ borderLeft: "5px solid green" }}
+          as={Link}                    // Use Link to make the item clickable
+          to={`/Kambaz/Courses/:aid/Assignments/A1`}  
         >
           <div className="d-flex flex-wrap justify-content-between align-items-center">
             <div className="d-flex align-items-center">
               <BsGripVertical className="me-2 text-secondary" />
               <FaRegEdit className="me-2 text-success" />
               <div>
-                <b>A1</b><br />
+                  <b>A1</b><br />
                 <small className="text-muted">
                   <span className="text-danger">Multiple Modules</span> |{" "}
                   <span className="fw-bold">Not available until</span> May 6 at 12:00am |{" "}
@@ -74,6 +77,8 @@ export default function Assignments() {
         <ListGroup.Item 
           className="rounded-0" 
           style={{ borderLeft: "5px solid green" }}
+          as={Link}                     // Use Link to make the item clickable
+          to={`/Kambaz/Courses/:aid/Assignments/A2`}  
         >
           <div className="d-flex flex-wrap justify-content-between align-items-center">
             <div className="d-flex align-items-center">
@@ -100,6 +105,8 @@ export default function Assignments() {
         <ListGroup.Item 
           className="rounded-0" 
           style={{ borderLeft: "5px solid green" }}
+          as={Link}                  // Use Link to make the item clickable
+          to={`/Kambaz/Courses/:aid/Assignments/A3`}
         >
           <div className="d-flex flex-wrap justify-content-between align-items-center">
             <div className="d-flex align-items-center">
