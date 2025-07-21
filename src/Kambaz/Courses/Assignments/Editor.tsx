@@ -5,6 +5,10 @@ import * as db from "../../Database"; // 确保默认导出对象中有 assignme
 export default function AssignmentEditor() {
   const { aid, cid } = useParams();
   const assignment = db.assignments.find(a => a._id === aid);
+  
+  if (!assignment) {
+    return <div className="text-danger p-3">Assignment not found</div>;
+  }
 
   return (
     <div id="wd-edit-assignment" className="p-3">
