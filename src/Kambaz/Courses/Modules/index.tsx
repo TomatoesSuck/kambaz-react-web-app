@@ -4,12 +4,9 @@ import { ListGroup } from "react-bootstrap";
 import { BsGripVertical } from "react-icons/bs";
 import ModuleControlButtons from "./ModuleControlButtons";
 import LessonControlButtons from "./LessonControlButtons";
-import * as db from "../../Database";
 import { useState } from "react";
-import { v4 as uuidv4 } from "uuid";
 import { FormControl } from "react-bootstrap";
-import { addModule, editModule, updateModule, deleteModule }
-  from "./reducer";
+import { addModule, editModule, updateModule, deleteModule } from "./reducer";
 import { useSelector, useDispatch } from "react-redux";
 
 export default function Modules() {
