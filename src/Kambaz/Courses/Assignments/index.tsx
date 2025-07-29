@@ -1,13 +1,42 @@
 import { useParams, Link } from "react-router-dom";
-import { Row, Col, FormControl, Button, ListGroup } from "react-bootstrap";
-import { FaEllipsisV, FaRegEdit } from "react-icons/fa";
+import {  Row, Col, FormControl, Button, ListGroup, Modal } from "react-bootstrap";
+import { FaEllipsisV, FaRegEdit, FaTrash } from "react-icons/fa";
 import { BsGripVertical } from "react-icons/bs";
 import GreenCheckmark from "../Modules/GreenCheckmark";
-import * as db from "../../Database";
+import { useSelector, useDispatch } from "react-redux";
+import { deleteAssignment } from "./reducer";
+import { useState } from "react";
+
+
 
 export default function Assignments() {
   const { cid } = useParams(); // 获取当前课程 ID
-  const assignments = db.assignments.filter((a) => a.course === cid); // 只显示当前课程的作业
+  const assignments = useSelector((state: any) => state.assignmentsReducer.assignments);
+  const existingAssignments = assignments.filter((a: any) => a.course === cid);
+
+  const currentUser = useSelector((state: any) => state.accountReducer.currentUser);
+  const isFaculty = currentUser?.role === "FACULTY";
+
+  // 删除弹窗状态
+  const [show, setShow] = useState(false);
+  const [toDelete, setToDelete] = useState<string | null>(null);
+
+  const dispatch = useDispatch();
+
+  /** 打开确认框并记住要删的 ID */
+  const askDelete = (e: React.MouseEvent, id: string) => {
+    e.preventDefault();        
+    e.stopPropagation();       
+    setToDelete(id);
+    setShow(true);
+  };
+
+  /** 真正执行删除 */
+  const confirmDelete = () => {
+    if (toDelete) dispatch(deleteAssignment(toDelete));
+    setShow(false);
+    setToDelete(null);
+  };
 
   return (
     <div id="wd-assignments" className="p-3">
@@ -21,7 +50,9 @@ export default function Assignments() {
         </Col>
         <Col className="text-end">
           <Button variant="secondary" className="me-2">+ Group</Button>
-          <Button variant="danger">+ Assignment</Button>
+          <Button variant="danger" disabled={!isFaculty} as={Link as any} to={`/Kambaz/Courses/${cid}/Assignments/new`}>
+              + Assignment
+          </Button>
         </Col>
       </Row>
 
@@ -44,7 +75,7 @@ export default function Assignments() {
       {/* 动态生成作业列表 */}
       <div id="wd-assignments-list" className="mb-3">
         <ListGroup className="rounded-0">
-          {assignments.map((a) => (
+          {existingAssignments.map((a: any) => (
             <ListGroup.Item
               key={a._id}
               className="rounded-0"
@@ -68,14 +99,33 @@ export default function Assignments() {
                 <div className="d-flex align-items-center">
                   <GreenCheckmark />
                   <Button variant="link" className="text-decoration-none text-secondary">
-                    <FaEllipsisV />
-                  </Button>
+                  <FaEllipsisV /> </Button>
+                  {/* 删除图标：只有教师可见 */}
+                  {isFaculty && (
+                   <FaTrash
+                    className="text-danger ms-2"
+                    style={{ cursor: "pointer" }}
+                    onClick={(e) => askDelete(e, a._id)}
+                  />
+                  )}
                 </div>
               </div>
             </ListGroup.Item>
           ))}
         </ListGroup>
       </div>
+
+      {/* 确认弹窗 */}
+      <Modal show={show} onHide={() => setShow(false)} backdrop="static">
+        <Modal.Header closeButton>
+          <Modal.Title>Confirm Deletion</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>Are you sure you want to delete this assignment?</Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShow(false)}>Cancel</Button>
+          <Button variant="danger" onClick={confirmDelete}>Yes, Delete</Button>
+        </Modal.Footer>
+      </Modal>
     </div>
   );
 }

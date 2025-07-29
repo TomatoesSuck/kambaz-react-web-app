@@ -1,88 +1,151 @@
 import { Form, Row, Col, Button } from "react-bootstrap";
-import { useParams, Link } from "react-router-dom";
-import * as db from "../../Database"; // 确保默认导出对象中有 assignments
+import { useParams, useNavigate } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
+import { useState, useEffect } from "react";
+import { addAssignment, updateAssignment } from "./reducer";
+import { v4 as uuidv4 } from "uuid";
+
 
 export default function AssignmentEditor() {
   const { aid, cid } = useParams();
-  const assignment = db.assignments.find(a => a._id === aid);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const isEditing = !!aid;
+
+  const assignments = useSelector((state: any) => state.assignmentsReducer.assignments);
+  const existingAssignment = assignments.find((a: any) => a._id === aid);
+
+  const currentUser = useSelector((state: any) => state.accountReducer.currentUser);
+  const isFaculty = currentUser?.role === "FACULTY";
+
+  const [assignment, setAssignment] = useState({
+    _id: "",
+    course: cid,
+    title: "New Assignment",
+    description: "New Assignment Description",
+    points: 100,
+    dueDate: "",
+    availableFromDate: "",
+    availableUntilDate: "",
+  });
+
+
+  useEffect(() => {
+    if (isEditing && existingAssignment) {
+      setAssignment(existingAssignment);
+    }
+  }, [isEditing, existingAssignment]);
   
-  if (!assignment) {
-    return <div className="text-danger p-3">Assignment not found</div>;
-  }
+  const handleChange = (e: any) => {
+    const { name, value } = e.target;
+    setAssignment((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleSave = () => {
+    if (isEditing) {
+      dispatch(updateAssignment(assignment));
+    } else {
+      dispatch(addAssignment({ ...assignment, _id: uuidv4() }));
+    }
+    navigate(`/Kambaz/Courses/${cid}/Assignments`);
+  };
 
   return (
     <div id="wd-edit-assignment" className="p-3">
+      <h2>{isEditing ? "Edit Assignment" : "Create New Assignment"}</h2>
+      {/* Assignment Name */}
       <Form>
-        {/* Assignment Name */}
-        <Form.Group className="mb-3" controlId="assignmentName">
+        <Form.Group className="mb-3">
           <Form.Label>Assignment Name</Form.Label>
-          <Form.Control type="text" value={assignment.title} readOnly />
-        </Form.Group>
+          <Form.Control
+            name="title"
+            type="text"
+            value={assignment.title}
+            onChange={handleChange}
+            disabled={!isFaculty}
+          />
+      </Form.Group>
 
-        {/* Description */}
-        <Form.Group className="mb-3" controlId="assignmentDescription">
+      {/* Description */}
+        <Form.Group className="mb-3">
           <Form.Label>Description</Form.Label>
-          <div className="border p-2 rounded" style={{ minHeight: "150px", background: "white" }}>
-            The assignment is <span className="text-danger">available online</span><br />
-            Submit a link to the landing page of your Web application running on Netlify.<br /><br />
-            The landing page should include the following:<br />
-            - Your full name and section<br />
-            - Links to each of the lab assignments<br />
-            - Link to the Kanbas application<br />
-            - Links to all relevant source code repositories<br /><br />
-            The Kanbas application should include a link to navigate back to the landing page.
-          </div>
+          <Form.Control
+            name="description"
+            as="textarea"
+            rows={4}
+            value={assignment.description}
+            onChange={handleChange}
+            disabled={!isFaculty}
+          />
         </Form.Group>
 
         {/* Points */}
-        <Form.Group className="mb-3" controlId="assignmentPoints">
+        <Form.Group className="mb-3">
           <Form.Label>Points</Form.Label>
-          <Form.Control type="text" value="100" readOnly/>
+          <Form.Control
+            name="points"
+            type="number"
+            value={assignment.points}
+            onChange={handleChange}
+            disabled={!isFaculty}
+          />
         </Form.Group>
 
         {/* Assign To */}
         <Form.Group className="mb-3" controlId="assignTo">
           <Form.Label>Assign to</Form.Label>
-          <Form.Control type="text" value=" "/>
+          <Form.Control type="text" value=" " disabled={!isFaculty}/>
         </Form.Group>
 
 
         {/* Due/Available/Until Dates */}
         <Row>
           <Col>
-            <Form.Group className="mb-3" controlId="dueDate">
-              <Form.Label>Due</Form.Label>
+            <Form.Group className="mb-3">
+              <Form.Label>Due Date</Form.Label>
               <Form.Control
+                name="dueDate"
                 type="datetime-local"
-                defaultValue="2024-05-13T23:59"
+                value={assignment.dueDate}
+                onChange={handleChange}
+                disabled={!isFaculty}
               />
             </Form.Group>
           </Col>
           <Col>
-            <Form.Group className="mb-3" controlId="availableFrom">
-              <Form.Label>Available from</Form.Label>
+            <Form.Group className="mb-3">
+              <Form.Label>Available From</Form.Label>
               <Form.Control
+                name="availableFromDate"
                 type="datetime-local"
-                defaultValue="2024-05-06T00:00"
+                value={assignment.availableFromDate}
+                onChange={handleChange}
+                disabled={!isFaculty}
               />
             </Form.Group>
           </Col>
           <Col>
-            <Form.Group className="mb-3" controlId="availableUntil">
-              <Form.Label>Until</Form.Label>
-              <Form.Control type="datetime-local" defaultValue="" />
+            <Form.Group className="mb-3">
+              <Form.Label>Available Until</Form.Label>
+              <Form.Control
+                name="availableUntilDate"
+                type="datetime-local"
+                value={assignment.availableUntilDate}
+                onChange={handleChange}
+                disabled={!isFaculty}
+              />
             </Form.Group>
           </Col>
         </Row>
 
         {/* Buttons */}
         <div className="d-flex justify-content-end">
-          <Link to={`/Kambaz/Courses/${cid}/Assignments`}>
-            <Button variant="secondary" className="me-2">Cancel</Button>
-          </Link>
-          <Link to={`/Kambaz/Courses/${cid}/Assignments`}>
-            <Button variant="danger">Save</Button>
-          </Link>
+          <Button variant="secondary" className="me-2" onClick={() => navigate(`/Kambaz/Courses/${cid}/Assignments`)}>
+            Cancel
+          </Button>
+          <Button variant="danger" onClick={handleSave} disabled={!isFaculty}>
+            Save
+          </Button>
         </div>
       </Form>
     </div>
