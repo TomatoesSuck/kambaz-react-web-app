@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { enrollments } from "../Database/";
+import { enrollments } from "../Database";
 import { v4 as uuidv4 } from "uuid";
 
 const initialState = {
@@ -11,7 +11,7 @@ const enrollmentSlice = createSlice({
   initialState,
   reducers: {
     enroll: (state, action) => {
-      const { user, course } = action.payload;
+      const { user, course, role = "student" } = action.payload;
       const alreadyEnrolled = state.enrollments.some(
         (e) => e.user === user && e.course === course
       );
@@ -19,7 +19,7 @@ const enrollmentSlice = createSlice({
       if (!alreadyEnrolled) {
         state.enrollments = [
           ...state.enrollments,
-          { _id: uuidv4(), user, course },
+          { _id: uuidv4(), user, course, role },
         ];
       }
     },
