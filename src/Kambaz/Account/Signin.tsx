@@ -1,9 +1,11 @@
-import { Form, Button } from "react-bootstrap";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { setCurrentUser } from "./reducer";
 import { useDispatch } from "react-redux";
+import FormControl from "react-bootstrap/esm/FormControl";
+import Button from "react-bootstrap/esm/Button";
 import * as client from "./client";
+
 
 export default function Signin() {
   const [credentials, setCredentials] = useState<any>({});
@@ -15,22 +17,27 @@ export default function Signin() {
     dispatch(setCurrentUser(user));
     navigate("/Kambaz/Dashboard");
   };
+
   return (
     <div id="wd-signin-screen">
       <h1>Sign in</h1>
-      <Form.Control 
-          defaultValue={credentials.username}
-          onChange={(e) => setCredentials({ ...credentials, username: e.target.value })}
-            id="wd-username"
-             placeholder="username"
-             className="mb-2"/>
-      <Form.Control id="wd-password"
-          defaultValue={credentials.password}
-          onChange={(e) => setCredentials({ ...credentials, password: e.target.value })}
-             placeholder="password" 
-             type="password"
-             className="mb-2"/>
-      <Button onClick={signin} id="wd-signin-btn" className="w-100" > Sign in </Button>
+      <FormControl defaultValue={credentials.username}
+        onChange={(e) => setCredentials({ ...credentials, username: e.target.value })}
+        id="wd-username"
+        placeholder="username"
+        className="mb-2 form-control" />
 
+      <FormControl defaultValue={credentials.password}
+        onChange={(e) => setCredentials({ ...credentials, password: e.target.value })}
+        id="wd-password"
+        placeholder="password" type="password"
+        className="mb-2 form-control" />
+
+      <Button onClick={signin} id="wd-signin-btn"
+        className="btn btn-primary w-100 mb-2">
+        Sign in
+      </Button>
+      
       <Link id="wd-signup-link" to="/Kambaz/Account/Signup">Sign up</Link>
-    </div> );}
+    </div>);
+}

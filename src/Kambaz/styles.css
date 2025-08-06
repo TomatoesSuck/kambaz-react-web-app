@@ -4,7 +4,25 @@ body * {  font-family: Arial, Helvetica, sans-serif;  }
 @media (min-width: 768px) {
   #wd-kambaz .wd-main-content-offset {
     padding-left: 140px !important;
+    width: calc(100vw - 140px) !important;
   }
+}
+
+#wd-courses {
+  width: 100%;
+}
+
+#wd-courses .d-flex {
+  width: 100%;
+}
+
+#wd-courses .flex-fill {
+  width: 100%;
+  max-width: 100%;
+}
+
+#wd-assignments .text-secondary {
+  color: #6c757d !important;
 }
 
 .list-group.wd > .list-group-item.active {
@@ -12,8 +30,6 @@ body * {  font-family: Arial, Helvetica, sans-serif;  }
   background-color: white;
   border-left: 3px solid black !important;
 }
-
-
 .btn-secondary {
   --bs-btn-color: #000 !important;
   --bs-btn-bg: #c7cdd1 !important;
@@ -28,4 +44,7 @@ body * {  font-family: Arial, Helvetica, sans-serif;  }
 }
 .wd-lesson {
   border-left: 3px solid green !important;
+}
+.wd-assignments {
+    border-left: 3px solid green !important;
 }

@@ -1,37 +1,96 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { enrollments } from "../Database";
-import { v4 as uuidv4 } from "uuid";
+import * as client from "./client";
 
-const initialState = {
-  enrollments: enrollments,
-};
+interface Enrollment {
+  _id: string;
+  user: string;
+  course: string;
+}
+
+interface EnrollmentState {
+  enrollments: Enrollment[];
+  loading: boolean;
+  error: string | null;
+}
+
+const initialState: EnrollmentState = {
+  enrollments: [],
+  loading: false,
+  error: null
+}
 
 const enrollmentSlice = createSlice({
   name: "enrollments",
   initialState,
   reducers: {
-    enroll: (state, action) => {
-      const { user, course, role = "student" } = action.payload;
-      const alreadyEnrolled = state.enrollments.some(
-        (e) => e.user === user && e.course === course
-      );
-
-      if (!alreadyEnrolled) {
-        state.enrollments = [
-          ...state.enrollments,
-          { _id: uuidv4(), user, course, role },
-        ];
-      }
+    setEnrollments: (state, { payload: enrollments }) => {
+      state.enrollments = enrollments;
     },
-
-    unenroll: (state, action) => {
-      const { user, course } = action.payload;
+    addEnrollment: (state, { payload: enrollment }) => {
+      state.enrollments.push(enrollment);
+    },
+    removeEnrollment: (state, { payload: { userId, courseId } }) => {
       state.enrollments = state.enrollments.filter(
-        (e) => !(e.user === user && e.course === course)
+        (e) => !(e.user === userId && e.course === courseId)
       );
     },
-  },
+    setLoading: (state, { payload: loading }) => {
+      state.loading = loading;
+    },
+    setError: (state, { payload: error }) => {
+      state.error = error;
+    }
+  }
 });
 
-export const { enroll, unenroll } = enrollmentSlice.actions;
-export default enrollmentSlice.reducer;
+export const { setEnrollments, addEnrollment, removeEnrollment, setLoading, setError } = enrollmentSlice.actions;
+
+export const loadEnrollments = () => async (dispatch: any) => {
+  try {
+    dispatch(setLoading(true));
+    const enrollments = await client.fetchAllEnrollments();
+    dispatch(setEnrollments(enrollments));
+    dispatch(setLoading(false));
+  } catch (error) {
+    dispatch(setError('Failed to load enrollments'));
+    dispatch(setLoading(false));
+  }
+};
+
+export const loadUserEnrollments = (userId: string) => async (dispatch: any) => {
+  try {
+    dispatch(setLoading(true));
+    const enrollments = await client.findEnrollmentsForUser(userId);
+    dispatch(setEnrollments(enrollments));
+    dispatch(setLoading(false));
+  } catch (error) {
+    dispatch(setError('Failed to load user enrollments'));
+    dispatch(setLoading(false));
+  }
+};
+
+export const enrollUserInCourseAPI = (userId: string, courseId: string) => async (dispatch: any) => {
+  try {
+    const enrollment = await client.enrollUserInCourse(userId, courseId);
+    // After enrolling, reload all enrollments to ensure state is in sync
+    await dispatch(loadEnrollments());
+    return enrollment;
+  } catch (error) {
+    dispatch(setError('Failed to enroll in course'));
+    throw error;
+  }
+};
+
+export const unenrollUserFromCourseAPI = (userId: string, courseId: string) => async (dispatch: any) => {
+  try {
+    const result = await client.unenrollUserFromCourse(userId, courseId);
+    // After unenrolling, reload all enrollments to ensure state is in sync
+    await dispatch(loadEnrollments());
+    return result;
+  } catch (error) {
+    dispatch(setError('Failed to unenroll from course'));
+    throw error;
+  }
+};
+
+export default enrollmentSlice.reducer; 

@@ -1,29 +1,30 @@
-import { Link, useParams, useLocation } from "react-router-dom";
+import { ListGroup } from "react-bootstrap";
+import { Link, useLocation, useParams } from "react-router-dom";
 
 export default function CourseNavigation() {
-  const { cid } = useParams();       // 动态获取课程 ID
-  const { pathname } = useLocation(); // 当前路径，用于高亮
-
-  // 导航项数组
+  const { cid } = useParams();
+  const { pathname } = useLocation();
   const links = [
-    "Home", "Modules", "Piazza", "Zoom",
-    "Assignments", "Quizzes", "Grades", "People"
+    { label: "Home", path: "Home" },
+    { label: "Modules", path: "Modules" },
+    { label: "Piazza", path: "Piazza" },
+    { label: "Zoom", path: "Zoom" },
+    { label: "Assignments", path: "Assignments" },
+    { label: "Quizzes", path: "Quizzes" },
+    { label: "People", path: "People" },
   ];
-
   return (
-    <div id="wd-course-navigation" className="wd list-group fs-5 rounded-0">
-      {links.map((label) => (
-        <Link
-          key={label}
-          to={`/Kambaz/Courses/${cid}/${label}`}        
-          id={`wd-course-${label.toLowerCase()}-link`} 
-          className={`list-group-item border border-0 ${
-            pathname.includes(label) ? "active" : "text-danger"
-          }`} 
+    <ListGroup className="rounded-0 wd">
+      {links.map((link) => (
+        <ListGroup.Item
+          key={link.path}
+          as={Link}
+          to={`/Kambaz/Courses/${cid}/${link.path}`}
+          className={`border border-0 text-danger ${pathname.includes(link.path) ? "active" : ""}`}
         >
-          {label}
-        </Link>
+          {link.label}
+        </ListGroup.Item>
       ))}
-    </div>
+    </ListGroup>
   );
 }

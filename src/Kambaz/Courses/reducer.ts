@@ -1,35 +1,37 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { courses } from "../Database";
-import { v4 as uuidv4 } from "uuid";
+import coursesData from "../Database/courses.json";
 
 const initialState = {
-  courses: courses
+  courses: coursesData,
+  selectedCourse: null,
 };
-const courseSlice = createSlice({
+
+const coursesSlice = createSlice({
   name: "courses",
   initialState,
   reducers: {
-    addCourse: (state, { payload: course }) => {
-      const newCourse: any = {
-        _id: uuidv4(),
-        name: course.name,
-        description: course.description,
-      };
-      state.courses = [...state.courses, newCourse] as any;
+    addCourse: (state, { payload }) => {
+      state.courses.push(payload);
     },
-
     deleteCourse: (state, { payload: courseId }) => {
-      state.courses = state.courses.filter((course) => course._id !== courseId);
+      state.courses = state.courses.filter((c: any) => c._id !== courseId);
+      if (state.selectedCourse && (state.selectedCourse as any)._id === courseId) {
+        state.selectedCourse = null;
+      }
     },
-
-    updateCourse: (state, { payload: course }) => {
+    updateCourse: (state, { payload }) => {
       state.courses = state.courses.map((c: any) =>
-        c._id === course._id ? course : c
-      ) as any;
+        c._id === payload._id ? payload : c
+      );
+      if (state.selectedCourse && (state.selectedCourse as any)._id === payload._id) {
+        state.selectedCourse = payload;
+      }
+    },
+    setSelectedCourse: (state, { payload }) => {
+      state.selectedCourse = payload;
     },
   },
 });
 
-
-export const { addCourse, deleteCourse, updateCourse } = courseSlice.actions;
-export default courseSlice.reducer;
+export const { addCourse, deleteCourse, updateCourse, setSelectedCourse } = coursesSlice.actions;
+export default coursesSlice.reducer; 
