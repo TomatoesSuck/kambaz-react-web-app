@@ -8,6 +8,15 @@ body * {  font-family: Arial, Helvetica, sans-serif;  }
   }
 }
 
+/*
+添加这个是为了让main content的padding-left和padding-right都为16px
+*/
+.wd-main-content-offset {
+  padding-left: 16px;
+  padding-right: 16px;
+  min-height: 100vh;
+}
+
 #wd-courses {
   width: 100%;
 }
@@ -25,11 +34,6 @@ body * {  font-family: Arial, Helvetica, sans-serif;  }
   color: #6c757d !important;
 }
 
-.list-group.wd > .list-group-item.active {
-  color: black;
-  background-color: white;
-  border-left: 3px solid black !important;
-}
 .btn-secondary {
   --bs-btn-color: #000 !important;
   --bs-btn-bg: #c7cdd1 !important;
@@ -47,4 +51,25 @@ body * {  font-family: Arial, Helvetica, sans-serif;  }
 }
 .wd-assignments {
     border-left: 3px solid green !important;
+}
+
+/* 选中状态（active） */
+.list-group.wd > .list-group-item.active {
+  color: black !important;              /* 字体黑色 */
+  background-color: white !important;   /* 背景白色（去掉默认蓝色） */
+  border-left: 3px solid black !important; /* 左边黑色边框 */
+  border-top: none !important;
+  border-right: none !important;
+  border-bottom: none !important;
+}
+
+/* 非选中状态 */
+.list-group.wd > .list-group-item {
+  color: red;                /* 红色字体 */
+  border-left: none;         /* 没有左边框 */
+  /* 只保留左边黑线 */
+  border-left: none !important;
+  border-top: none !important;
+  border-right: none !important;
+  border-bottom: none !important;
 }
