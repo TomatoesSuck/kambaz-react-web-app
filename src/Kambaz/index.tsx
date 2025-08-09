@@ -5,60 +5,114 @@ import Dashboard from "./Dashboard";
 import KambazNavigation from "./Navigation";
 import Courses from "./Courses";
 import "./styles.css";
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
 import ProtectedRoute from "./Account/ProtectedRoute";
-import { addCourse, deleteCourse as deleteReduxCourse, updateCourse as updateReduxCourse, setSelectedCourse } from "./Courses/reducer";
 import Session from "./Account/Session";
-import * as userClient from "./Account/client";
 import * as courseClient from "./Courses/client";
+import * as userClient from "./Account/client";
 
 
 export default function Kambaz() {
-  const dispatch = useDispatch();
   const [courses, setCourses] = useState<any[]>([]);
+  const [course, setCourse] = useState<any>({
+    _id: "",
+    name: "",
+    description: "",
+    number: "",
+    startDate: "",
+    endDate: "",
+    image: "",
+    department: "",
+    credits: 0,
+  });
   
   const { currentUser } = useSelector((state: any) => state.accountReducer);
-  const selectedCourse = useSelector((state: any) => state.coursesReducer.selectedCourse);
-
-  const fetchCourses = async () => {
+  const [enrolling, setEnrolling] = useState<boolean>(false);
+  
+  const findCoursesForUser = async () => {
     try {
-      const courses = await userClient.findMyCourses();
+      const courses = await userClient.findCoursesForUser(currentUser._id);
       setCourses(courses);
     } catch (error) {
       console.error(error);
     }
   };
+  const fetchCourses = async () => {
+    try {
+      const allCourses = await courseClient.fetchAllCourses();
+      const enrolledCourses = await userClient.findCoursesForUser(
+        currentUser._id
+      );
+      const courses = allCourses.map((course: any) => {
+        if (enrolledCourses.find((c: any) => c._id === course._id)) {
+          return { ...course, enrolled: true };
+        } else {
+          return course;
+        }
+      });
+      setCourses(courses);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+  useEffect(() => {
+    if (enrolling) {
+      fetchCourses();
+    } else {
+      findCoursesForUser();
+    }
+  }, [currentUser, enrolling]);
 
+
+  const updateEnrollment = async (courseId: string, enrolled: boolean) => {
+    if (enrolled) {
+      await userClient.enrollIntoCourse(currentUser._id, courseId);
+    } else {
+      await userClient.unenrollFromCourse(currentUser._id, courseId);
+    }
+    setCourses(
+      courses.map((course) => {
+        if (course._id === courseId) {
+          return { ...course, enrolled: enrolled };
+        } else {
+          return course;
+        }
+      })
+    );
+  };
+
+  
   const addNewCourse = async (course: any) => {
-    const newCourse = await userClient.createCourse(course);
+    const newCourse = await courseClient.createCourse(course);
     setCourses((courses) => [...courses, newCourse]);
   };
   
-  useEffect(() => {
-    fetchCourses();
-  }, [currentUser]);
 
-  const handleAddCourse = async (course: any) => {
-    try {
-      await addNewCourse(course);
-      dispatch(addCourse(course));
-    } catch (error) {
-      console.error("Error adding course:", error);
-    }
-  };
+  // const handleAddCourse = async (course: any) => {
+  //   try {
+  //     await addNewCourse(course);
+  //     dispatch(addCourse(course));
+  //   } catch (error) {
+  //     console.error("Error adding course:", error);
+  //   }
+  // };
+
   const deleteCourse = async (courseId: string) => {
+    // const status = await courseClient.deleteCourse(courseId);
+    // since we never use the status, we can just set the courses to the filtered courses
     await courseClient.deleteCourse(courseId);
     setCourses(courses.filter((course) => course._id !== courseId));
   };
   
-  const handleDeleteCourse = async (courseId: string) => {
-    try {
-      await deleteCourse(courseId);
-      dispatch(deleteReduxCourse(courseId));
-    } catch (error) {
-      console.error("Error deleting course:", error);
-    }
-  };
+  // const handleDeleteCourse = async (courseId: string) => {
+  //   try {
+  //     await deleteCourse(courseId);
+  //     dispatch(deleteReduxCourse(courseId));
+  //   } catch (error) {
+  //     console.error("Error deleting course:", error);
+  //   }
+  // };
+
   const updateCourse = async (course: any) => {
     await courseClient.updateCourse(course);
     setCourses(courses.map((c) => {
@@ -67,17 +121,17 @@ export default function Kambaz() {
     }));
   };
   
-  const handleUpdateCourse = async (course: any) => {
-    try {
-      await updateCourse(course);
-      dispatch(updateReduxCourse(course));
-    } catch (error) {
-      console.error("Error updating course:", error);
-    }
-  };
-  const handleSetSelectedCourse = (course: any) => {
-    dispatch(setSelectedCourse(course));
-  };
+  // const handleUpdateCourse = async (course: any) => {
+  //   try {
+  //     await updateCourse(course);
+  //     dispatch(updateReduxCourse(course));
+  //   } catch (error) {
+  //     console.error("Error updating course:", error);
+  //   }
+  // };
+  // const handleSetSelectedCourse = (course: any) => {
+  //   dispatch(setSelectedCourse(course));
+  // };
 
   return (
     <Session>
@@ -91,11 +145,14 @@ export default function Kambaz() {
               <ProtectedRoute>
                 <Dashboard
                   courses={courses}
-                  selectedCourse={selectedCourse}
-                  addCourse={handleAddCourse}
-                  deleteCourse={handleDeleteCourse}
-                  updateCourse={handleUpdateCourse}
-                  setSelectedCourse={handleSetSelectedCourse}
+                  course={course}
+                  setCourse={setCourse}
+                  addNewCourse={addNewCourse}
+                  deleteCourse={deleteCourse}
+                  updateCourse={updateCourse}
+                  enrolling={enrolling} 
+                  setEnrolling={setEnrolling} 
+                  updateEnrollment={updateEnrollment}
                 />
               </ProtectedRoute>} />
             <Route path="/Courses/:cid/*" element={

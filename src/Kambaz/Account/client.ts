@@ -1,8 +1,8 @@
 import axios from "axios";
 const axiosWithCredentials = axios.create({ withCredentials: true });
 
-export const HTTP_SERVER = import.meta.env.VITE_HTTP_SERVER;
-export const USERS_API = `${HTTP_SERVER}/api/users`;
+export const REMOTE_SERVER = import.meta.env.VITE_REMOTE_SERVER;
+export const USERS_API = `${REMOTE_SERVER}/api/users`;
 
 export const findAllUsers = async () => {
   const response = await axiosWithCredentials.get(USERS_API);
@@ -64,7 +64,24 @@ export const signout = async () => {
   const response = await axiosWithCredentials.post(`${USERS_API}/signout`);
   return response.data;
 };
-export const createCourse = async (course: any) => {
-  const { data } = await axiosWithCredentials.post(`${USERS_API}/current/courses`, course);
-  return data;
+
+export const findCoursesForUser = async (userId: string) => {
+  const response = await axiosWithCredentials.get(`${USERS_API}/${userId}/courses`);
+  return response.data;
 };
+
+export const enrollIntoCourse = async (userId: string, courseId: string) => {
+  const response = await axiosWithCredentials.post(`${USERS_API}/${userId}/courses/${courseId}`);
+  return response.data;
+ };
+ export const unenrollFromCourse = async (userId: string, courseId: string) => {
+  const response = await axiosWithCredentials.delete(`${USERS_API}/${userId}/courses/${courseId}`);
+  return response.data;
+ };
+ 
+
+// We don't need this anymore because we are using the courseClient to create courses
+// export const createCourse = async (course: any) => {
+//   const { data } = await axiosWithCredentials.post(`${USERS_API}/current/courses`, course);
+//   return data;
+// };

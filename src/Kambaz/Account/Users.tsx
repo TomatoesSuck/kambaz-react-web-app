@@ -49,6 +49,7 @@ export default function Users() {
    const users = await client.findAllUsers();
    setUsers(users);
  };
+ 
  useEffect(() => {
    fetchUsers();
  }, [uid]);

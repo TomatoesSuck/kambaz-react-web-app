@@ -1,6 +1,6 @@
 import axios from "axios";
-const HTTP_SERVER = import.meta.env.VITE_HTTP_SERVER || "http://localhost:4000";
-const ENROLLMENTS_API = `${HTTP_SERVER}/api/enrollments`;
+const REMOTE_SERVER = import.meta.env.VITE_REMOTE_SERVER || "http://localhost:4000";
+const ENROLLMENTS_API = `${REMOTE_SERVER}/api/enrollments`;
 
 export const fetchAllEnrollments = async () => {
   try {

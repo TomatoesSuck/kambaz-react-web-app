@@ -1,6 +1,6 @@
 import axios from "axios";
-const HTTP_SERVER = import.meta.env.VITE_HTTP_SERVER || "http://localhost:4000";
-const ASSIGNMENTS_API = `${HTTP_SERVER}/api/assignments`;
+const REMOTE_SERVER = import.meta.env.VITE_REMOTE_SERVER || "http://localhost:4000";
+const ASSIGNMENTS_API = `${REMOTE_SERVER}/api/assignments`;
 
 export const fetchAllAssignments = async () => {
   try {
@@ -14,7 +14,7 @@ export const fetchAllAssignments = async () => {
 
 export const findAssignmentsForCourse = async (courseId: string) => {
   try {
-    const response = await axios.get(`${HTTP_SERVER}/api/courses/${courseId}/assignments`);
+    const response = await axios.get(`${REMOTE_SERVER}/api/courses/${courseId}/assignments`);
     return response.data;
   } catch (error) {
     console.error('Error fetching course assignments:', error);

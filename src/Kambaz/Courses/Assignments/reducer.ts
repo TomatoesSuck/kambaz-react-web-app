@@ -1,10 +1,3 @@
-
-
-
-
-
-
-
 import { createSlice } from "@reduxjs/toolkit";
 import { assignments } from "../../Database";
 import * as client from "./client";

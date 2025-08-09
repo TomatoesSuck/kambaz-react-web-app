@@ -1,10 +1,3 @@
-
-
-
-
-
-
-
 import CourseNavigation from "./Navigation";
 import Modules from "./Modules";
 import Home from "./Home";
@@ -14,8 +7,10 @@ import { Navigate, Route, Routes, useLocation, useParams } from "react-router";
 import PeopleTable from "./People/Table";
 import { LuAlignJustify } from "react-icons/lu";
 import { useSelector } from "react-redux";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { findUsersForCourse } from "./client";
+
 
 export default function Courses({ courses }: { courses: any[] }) {
   const { cid } = useParams();
@@ -23,9 +18,24 @@ export default function Courses({ courses }: { courses: any[] }) {
   const { currentUser } = useSelector((state: any) => state.accountReducer);
   const enrollments = useSelector((state: any) => state.enrollmentsReducer.enrollments);
   const isFaculty = currentUser?.role === "FACULTY";
-  
   const course = courses.find((course) => course._id === cid);
   const { pathname } = useLocation();
+  const [users, setUsers] = useState<any[]>([]);
+
+  const fetchUsersForCourse = async (cid: string) => {
+    try {
+      const users = await findUsersForCourse(cid);
+      setUsers(users);
+    } catch (err) {
+      setUsers([]);
+    }
+  };
+  
+  useEffect(() => {
+    if (cid) {
+      fetchUsersForCourse(cid);
+    }
+  }, [cid]);
 
   const isEnrolledInCourse = () => {
     if (isFaculty) return true; // Faculty can access all courses
@@ -46,6 +56,7 @@ export default function Courses({ courses }: { courses: any[] }) {
     return <div className="text-center mt-4">You are not enrolled in this course</div>;
   }
 
+
   return (
     <div id="wd-courses">
       <h2 className="text-danger">
@@ -64,7 +75,7 @@ export default function Courses({ courses }: { courses: any[] }) {
             <Route path="Modules" element={<Modules />} />
             <Route path="Assignments" element={<Assignments />} />
             <Route path="Assignments/:aid" element={<AssignmentEditor/>} />
-            <Route path="People" element={<PeopleTable />} />
+            <Route path="People" element={<PeopleTable users={users}/>} />
           </Routes>
         </div>
       </div>
