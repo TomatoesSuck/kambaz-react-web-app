@@ -1,6 +1,3 @@
-
-
-
 import { Button, Col, Container, Form, Row } from "react-bootstrap";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
@@ -23,8 +20,8 @@ export default function AssignmentEditor() {
   
   useEffect(() => {
     console.log('Loading assignments...');
-    dispatch(loadAssignments());
-  }, [dispatch]);
+    dispatch(loadAssignments(cid as string));
+  }, [dispatch, cid]);
   
   useEffect(() => {
     if (!isFaculty) {
@@ -112,7 +109,7 @@ export default function AssignmentEditor() {
 
     try {
       if (isNewAssignment) {
-        await dispatch(createAssignmentAPI(assignmentData));
+        await dispatch(createAssignmentAPI(cid as string, assignmentData));
       } else {
         await dispatch(updateAssignmentAPI(assignmentData));
       }

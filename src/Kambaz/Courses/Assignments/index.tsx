@@ -27,8 +27,8 @@ export default function Assignments() {
 
   useEffect(() => {
     console.log('Loading assignments in Assignments component...');
-    dispatch(loadAssignments());
-  }, [dispatch]);
+    dispatch(loadAssignments(cid as string));
+  }, [dispatch, cid]);
 
   const handleDeleteClick = (assignmentId: string) => {
     if (assignments && Array.isArray(assignments)) {

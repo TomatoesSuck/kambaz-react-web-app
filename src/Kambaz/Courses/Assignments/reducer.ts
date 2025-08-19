@@ -1,98 +1,86 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { assignments } from "../../Database";
+import * as coursesClient from "../client";
 import * as client from "./client";
 
-const initialState = {
-  assignments: assignments,
+type State = {
+  assignments: any[];
+  loading: boolean;
+  error: string | null;
+};
+
+const initialState: State = {
+  assignments: [],
   loading: false,
   error: null
-}
+};
 
 const assignmentSlice = createSlice({
   name: "assignments",
   initialState,
   reducers: {
-    addAssignment: (state, { payload: assignment }) => {
-      const newAssignment = {
-        _id: assignment._id,
-        title: assignment.title,
-        description: assignment.description,
-        course: assignment.course,
-        availableDate: assignment.availableDate,
-        dueDate: assignment.dueDate,
-        points: assignment.points,
-        available: assignment.available,
-        due: assignment.due
-      };
-      state.assignments = [...state.assignments, newAssignment] as any;
-    },
-    updateAssignment: (state, { payload: assignment }) => {
+    setAssignments: (state, { payload }) => { state.assignments = payload; },
+    addAssignment: (state, { payload }) => { state.assignments.push(payload); },
+    updateAssignmentLocal: (state, { payload }) => {
       state.assignments = state.assignments.map((a: any) =>
-        a._id === assignment._id ? assignment : a
-      ) as any;
-    },
-    deleteAssignment: (state, { payload: assignmentId }) => {
-      state.assignments = state.assignments.filter(
-        (a: any) => a._id !== assignmentId
+        a._id === payload._id ? payload : a
       );
     },
-    setAssignments: (state, { payload: assignments }) => {
-      state.assignments = assignments;
+    deleteAssignmentLocal: (state, { payload: aid }) => {
+      state.assignments = state.assignments.filter((a: any) => a._id !== aid);
     },
-    setLoading: (state, { payload: loading }) => {
-      state.loading = loading;
-    },
-    setError: (state, { payload: error }) => {
-      state.error = error;
-    }
+    setLoading: (state, { payload }) => { state.loading = payload; },
+    setError: (state, { payload }) => { state.error = payload; }
   }
 });
 
-export const { addAssignment, updateAssignment, deleteAssignment, setAssignments, setLoading, setError } = assignmentSlice.actions;
+export const {
+  setAssignments, addAssignment, updateAssignmentLocal, deleteAssignmentLocal,
+  setLoading, setError
+} = assignmentSlice.actions;
 
-export const loadAssignments = () => async (dispatch: any) => {
+export default assignmentSlice.reducer;
+
+
+export const loadAssignments = (courseId: string) => async (dispatch: any) => {
   try {
     dispatch(setLoading(true));
-    const assignments = await client.fetchAllAssignments();
-    dispatch(setAssignments(assignments));
-    dispatch(setLoading(false));
-  } catch (error) {
-    dispatch(setError('Failed to load assignments'));
+    const list = await coursesClient.findAssignmentsForCourse(courseId);
+    dispatch(setAssignments(list));
+  } catch (e) {
+    dispatch(setError("Failed to load assignments"));
+  } finally {
     dispatch(setLoading(false));
   }
 };
 
-export const createAssignmentAPI = (assignment: any) => async (dispatch: any) => {
+export const createAssignmentAPI = (courseId: string, payload: any) => async (dispatch: any) => {
   try {
-    const newAssignment = await client.createAssignment(assignment);
-    dispatch(addAssignment(newAssignment));
-    return newAssignment;
-  } catch (error) {
-    dispatch(setError('Failed to create assignment'));
-    throw error;
+    const created = await client.createAssignment(courseId, payload);
+    dispatch(addAssignment(created));
+    return created;
+  } catch (e) {
+    dispatch(setError("Failed to create assignment"));
+    throw e;
   }
 };
 
 export const updateAssignmentAPI = (assignment: any) => async (dispatch: any) => {
   try {
-    const updatedAssignment = await client.updateAssignment(assignment._id, assignment);
-    dispatch(updateAssignment(updatedAssignment));
-    return updatedAssignment;
-  } catch (error) {
-    dispatch(setError('Failed to update assignment'));
-    throw error;
+    const updated = await client.updateAssignment(assignment._id, assignment);
+    dispatch(updateAssignmentLocal(updated ?? assignment));
+    return updated ?? assignment;
+  } catch (e) {
+    dispatch(setError("Failed to update assignment"));
+    throw e;
   }
 };
 
-export const deleteAssignmentAPI = (assignmentId: string) => async (dispatch: any) => {
+export const deleteAssignmentAPI = (aid: string) => async (dispatch: any) => {
   try {
-    await client.deleteAssignment(assignmentId);
-    dispatch(deleteAssignment(assignmentId));
-  } catch (error) {
-    dispatch(setError('Failed to delete assignment'));
-    throw error;
+    await client.deleteAssignment(aid);
+    dispatch(deleteAssignmentLocal(aid));
+  } catch (e) {
+    dispatch(setError("Failed to delete assignment"));
+    throw e;
   }
 };
-
-export default assignmentSlice.reducer;
-

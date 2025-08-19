@@ -12,16 +12,6 @@ export const fetchAllAssignments = async () => {
   }
 };
 
-export const findAssignmentsForCourse = async (courseId: string) => {
-  try {
-    const response = await axios.get(`${REMOTE_SERVER}/api/courses/${courseId}/assignments`);
-    return response.data;
-  } catch (error) {
-    console.error('Error fetching course assignments:', error);
-    throw error;
-  }
-};
-
 export const findAssignmentById = async (assignmentId: string) => {
   try {
     const response = await axios.get(`${ASSIGNMENTS_API}/${assignmentId}`);
@@ -32,12 +22,15 @@ export const findAssignmentById = async (assignmentId: string) => {
   }
 };
 
-export const createAssignment = async (assignment: any) => {
+export const createAssignment = async (courseId: string, assignment: any) => {
   try {
-    const response = await axios.post(ASSIGNMENTS_API, assignment);
+    const response = await axios.post(
+      `${REMOTE_SERVER}/api/courses/${courseId}/assignments`,
+      assignment
+    );
     return response.data;
   } catch (error) {
-    console.error('Error creating assignment:', error);
+    console.error("Error creating assignment:", error);
     throw error;
   }
 };
